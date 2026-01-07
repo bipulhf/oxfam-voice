@@ -17,7 +17,7 @@ export function StatsCards() {
         const result = await Effect.runPromise(
           fetchApi<StatsResponse>("/api/stats")
         );
-        
+
         if (!("error" in result)) {
           setStats(result);
         }
@@ -51,13 +51,15 @@ export function StatsCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <Card>
         <CardHeader>
           <CardTitle>মোট প্রতিক্রিয়া</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{stats.totalResponses}</div>
+          <div className="text-3xl font-bold">
+            {stats.totalResponses.toLocaleString("bn-BD")}
+          </div>
         </CardContent>
       </Card>
 
@@ -80,15 +82,6 @@ export function StatsCards() {
           <div className="text-3xl font-bold">
             {Math.round(stats.averageLossAmount).toLocaleString("bn-BD")} টাকা
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>চলমান সেশন</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">{stats.pendingSessions}</div>
         </CardContent>
       </Card>
     </div>

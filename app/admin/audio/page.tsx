@@ -28,6 +28,8 @@ export default function AudioFilesPage() {
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [downloading, setDownloading] = React.useState<string | null>(null);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [itemsPerPage] = React.useState(10);
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -62,6 +64,15 @@ export default function AudioFilesPage() {
         s.respondent?.district?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [sessions, searchTerm]);
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
 
   const handleDownload = async (sessionId: string, sessionCode: string) => {
     try {
@@ -143,7 +154,7 @@ export default function AudioFilesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSessions.map((session) => (
+                {paginatedSessions.map((session) => (
                   <tr key={session.id} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-mono">{session.sessionCode}</td>
                     <td className="p-2">{session.respondent?.name || "-"}</td>
@@ -189,6 +200,59 @@ export default function AudioFilesPage() {
               </div>
             )}
           </div>
+          
+          {filteredSessions.length > 0 && (
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                {filteredSessions.length > 0
+                  ? `পৃষ্ঠা ${currentPage} এর ${totalPages} (মোট ${filteredSessions.length} টি)`
+                  : "কোন ডেটা নেই"}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  পূর্ববর্তী
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="min-w-[2.5rem]"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  পরবর্তী
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

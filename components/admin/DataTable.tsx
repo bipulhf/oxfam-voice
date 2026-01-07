@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { fetchApi } from "@/lib/api";
 import { Effect } from "effect";
 
@@ -36,6 +37,8 @@ export function DataTable() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sortBy, setSortBy] = React.useState<keyof Respondent>("createdAt");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc");
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [itemsPerPage] = React.useState(10);
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -98,6 +101,15 @@ export function DataTable() {
 
     return filtered;
   }, [respondents, searchTerm, sortBy, sortOrder]);
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortBy, sortOrder]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
   const handleSort = (column: keyof Respondent) => {
     if (sortBy === column) {
@@ -172,7 +184,7 @@ export function DataTable() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((r) => (
+              {paginatedData.map((r) => (
                 <tr key={r.id} className="border-b hover:bg-muted/50">
                   <td className="p-2">{r.name || "-"}</td>
                   <td className="p-2">{r.district || "-"}</td>
@@ -199,6 +211,59 @@ export function DataTable() {
             </div>
           )}
         </div>
+        
+        {filteredData.length > 0 && (
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {filteredData.length > 0
+                ? `পৃষ্ঠা ${currentPage} এর ${totalPages} (মোট ${filteredData.length} টি)`
+                : "কোন ডেটা নেই"}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                পূর্ববর্তী
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className="min-w-[2.5rem]"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                পরবর্তী
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
