@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Session {
+  id            String        @id @default(uuid())
+  sessionCode   String        @unique
+  audioFilename String?
+  status        SessionStatus @default(IN_PROGRESS)
+  createdAt     DateTime      @default(now())
+  completedAt   DateTime?
+  respondent    Respondent?
+}
+
+model Respondent {
+  id             String   @id @default(uuid())
+  sessionId      String   @unique
+  session        Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  name           String?  // নাম
+  fatherName     String?  // পিতার নাম
+  motherName     String?  // মাতার নাম
+  district       String?  // জেলা
+  upazila        String?  // উপজেলা/থানা
+  union          String?  // ইউনিয়ন
+  village        String?  // গ্রাম
+  profession     String?  // পেশা
+  incidentType   String?  // ক্ষতির ধরন
+  incidentYear   Int?     // বছর
+  incidentMonth  String?  // মাস
+  lossAmount     Float?   // ক্ষতির পরিমাণ (টাকা)
+  additionalInfo String?  // অতিরিক্ত তথ্য
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TaskQueue {
+  id          String     @id @default(uuid())
+  type        TaskType
+  payload     Json
+  status      TaskStatus @default(PENDING)
+  attempts    Int        @default(0)
+  maxAttempts Int        @default(3)
+  error       String?
+  createdAt   DateTime   @default(now())
+  processedAt DateTime?
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum TaskType {
+  MERGE_AUDIO
+  TRANSCRIBE
+}
+
+enum TaskStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
