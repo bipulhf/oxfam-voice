@@ -854,7 +854,7 @@ export function VoiceInterface() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="audio/webm,audio/mp3,audio/wav,audio/ogg,audio/m4a,audio/mpeg,audio/aac,audio/aacp,audio/mp4,audio/x-aac"
+                accept="*"
                 onChange={handleFileUpload}
                 className="hidden"
               />
