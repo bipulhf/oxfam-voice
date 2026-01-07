@@ -536,9 +536,24 @@ export function VoiceInterface() {
       setCallState("active");
       callStateRef.current = "active";
 
+      const currentTime = new Date().getHours();
+      const isMorning = currentTime >= 6 && currentTime < 12;
+      const isAfternoon = currentTime >= 12 && currentTime < 18;
+      const isEvening = currentTime >= 18 && currentTime < 21;
+
+      let greeting = "";
+      if (isMorning) {
+        greeting =
+          "শুভ সকাল! আমি আপনার তথ্য সংগ্রহ করতে চাই। শুরু করার আগে আপনার নামটি বলবেন কি?";
+      } else if (isAfternoon) {
+        greeting =
+          "শুভ বিকেল! আমি আপনার তথ্য সংগ্রহ করতে চাই। শুরু করার আগে আপনার নামটি বলবেন কি?";
+      } else if (isEvening) {
+        greeting =
+          "শুভ সন্ধ্যা! আমি আপনার তথ্য সংগ্রহ করতে চাই। শুরু করার আগে আপনার নামটি বলবেন কি?";
+      }
+
       // Start with a greeting from the assistant
-      const greeting =
-        "আসসালামু আলাইকুম! আমি আপনার তথ্য সংগ্রহ করতে চাই। প্রথমে আপনার নাম বলুন।";
       setMessages([
         { role: "assistant", content: greeting, timestamp: new Date() },
       ]);
