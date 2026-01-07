@@ -16,7 +16,9 @@ import { Effect } from "effect";
 import type { StatsResponse } from "@/types";
 
 export function LossDistributionChart() {
-  const [data, setData] = React.useState<{ range: string; count: number }[]>([]);
+  const [data, setData] = React.useState<{ range: string; count: number }[]>(
+    []
+  );
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -24,7 +26,7 @@ export function LossDistributionChart() {
         const result = await Effect.runPromise(
           fetchApi<StatsResponse>("/api/stats")
         );
-        
+
         if (!("error" in result) && result.lossDistribution) {
           setData(result.lossDistribution);
         }
@@ -45,12 +47,7 @@ export function LossDistributionChart() {
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="range"
-              angle={-45}
-              textAnchor="end"
-              height={100}
-            />
+            <XAxis dataKey="range" angle={-45} textAnchor="end" height={100} />
             <YAxis />
             <Tooltip />
             <Bar dataKey="count" fill="oklch(0.65 0.18 55)" />
